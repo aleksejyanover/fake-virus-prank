@@ -1,27 +1,50 @@
 #!/bin/bash
 # Пранк «Фейковый вирус» — лаунчер приложения для macOS.
-# Ничего настоящего не удаляет: только экраны и звуки пранка.
-# Esc или Cmd+Ctrl+F — выход из полноэкранного режима.
+# Полноэкранный (kiosk) режим Edge/Chrome. Если окно закрыли раньше конца
+# сценария — открывается заново, максимум 3 запуска.
+# Ничего настоящего не удаляет. Esc — выход из полноэкранного режима.
 
 DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 HTML="$DIR/index.html"
+[ -f "$HTML" ] || HTML="$HOME/fake-virus-prank/index.html"
 
-if [ ! -f "$HTML" ]; then
-  HTML="$HOME/fake-virus-prank/index.html"
-fi
 if [ ! -f "$HTML" ]; then
   osascript -e 'display alert "Не найден файл index.html рядом с приложением." buttons {"OK"} default button "OK"'
   exit 1
 fi
 
 URL="file://${HTML// /%20}"
+PROFILE="$TMPDIR/prank-kiosk-profile"
+SCENARIO=110   # сценарий ~75 сек + запас на время до нажатия «Начать»
+MAX=2          # итого максимум 3 запуска
+TRIES=0
 
-if [ -d "/Applications/Microsoft Edge.app" ]; then
-  open -a "Microsoft Edge" --args --kiosk --no-first-run "$URL"
-elif [ -d "/Applications/Google Chrome.app" ]; then
-  open -a "Google Chrome" --args --kiosk --no-first-run "$URL"
-else
-  open -a Safari "$HTML"
-  sleep 1
-  osascript -e 'tell application "System Events" to keystroke "f" using {control down, command down}' 2>/dev/null
-fi
+EDGE="/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"
+CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+
+run_kiosk() {
+  local bin="$1" start now
+  start=$(date +%s)
+  "$bin" --kiosk --no-first-run --user-data-dir="$PROFILE" "$URL" >/dev/null 2>&1 &
+  wait $! 2>/dev/null
+  now=$(date +%s)
+  if [ $((now - start)) -lt "$SCENARIO" ] && [ "$TRIES" -lt "$MAX" ]; then
+    TRIES=$((TRIES + 1))
+    sleep 2
+    return 1
+  fi
+  return 0
+}
+
+while true; do
+  if [ -x "$EDGE" ]; then
+    run_kiosk "$EDGE" && break
+  elif [ -x "$CHROME" ]; then
+    run_kiosk "$CHROME" && break
+  else
+    open -a Safari "$HTML"
+    sleep 1
+    osascript -e 'tell application "System Events" to keystroke "f" using {control down, command down}' 2>/dev/null
+    break
+  fi
+done
