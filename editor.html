@@ -62,9 +62,9 @@
       <label class="check"><input type="checkbox" id="sound" checked> 🔊 Звук</label>
       <select class="big" id="preset">
         <option value="">— Готовые сценарии —</option>
-        <option value="quick">⚡ Быстрый (~20 сек)</option>
-        <option value="classic">👾 Классический (~35 сек)</option>
-        <option value="long">⏳ Долгий (~45 сек)</option>
+        <option value="quick">⚡ Быстрый (~45 сек)</option>
+        <option value="classic">👾 Классический (~75 сек)</option>
+        <option value="long">⏳ Долгий (~95 сек)</option>
       </select>
       <button class="btn primary" id="run">▶ Запустить пранк</button>
       <button class="btn ghost" id="copy">🔗 Скопировать ссылку</button>
@@ -102,35 +102,40 @@ const TYPES = [
   ["screamer", "😱 Скример (перепуг)"],
   ["bsod",     "🟦 Синий экран"],
   ["restore",  "♻️ Восстановление файлов"],
-  ["freedom",  "🎉 Освобождение ПК (финал)"]
+  ["freedom",  "🏁 Финал: система в порядке"]
 ];
 
 const PRESETS = {
   quick: [
     {t:1,  type:"message", title:"Обнаружена угроза!", text:"Троян.Virus.9001 найден в ваших файлах!"},
-    {t:6,  type:"delete",  duration:7},
-    {t:13, type:"screamer",duration:1.6},
-    {t:15, type:"restore", duration:4},
-    {t:19, type:"freedom", text:"Контроль над компьютером освобождён!"}
+    {t:6,  type:"delete",  duration:12},
+    {t:19, type:"report",  duration:6},
+    {t:26, type:"screamer",duration:2},
+    {t:29, type:"bsod",    duration:6},
+    {t:36, type:"restore", duration:7},
+    {t:44, type:"freedom", text:"Проверка завершена — система в порядке"}
   ],
   classic: [
     {t:1,  type:"message", title:"Обнаружена угроза!", text:"Троян.Virus.9001 обнаружен в ваших файлах. Начинается срочное удаление..."},
-    {t:6,  type:"delete",  duration:9},
-    {t:16, type:"report",  duration:5},
-    {t:22, type:"screamer",duration:1.8},
-    {t:24, type:"bsod",    duration:5},
-    {t:29, type:"restore", duration:6},
-    {t:36, type:"freedom", text:"Контроль над компьютером освобождён!"}
+    {t:7,  type:"message", title:"Угроза критическая", text:"Вирус распространяется по папкам. Отменить операцию уже невозможно..."},
+    {t:13, type:"delete",  duration:20},
+    {t:34, type:"report",  duration:8},
+    {t:44, type:"message", title:"Последний этап", text:"Осталось уничтожить резервные копии и системные журналы. Закрытие окна заблокировано."},
+    {t:50, type:"screamer",duration:2},
+    {t:53, type:"bsod",    duration:8},
+    {t:62, type:"restore", duration:10},
+    {t:74, type:"freedom", text:"Проверка завершена — система в порядке"}
   ],
   long: [
-    {t:1,  type:"message", title:"Внимание системы", text:"Обнаружен неизвестный процесс. Проверка данных..."},
-    {t:5,  type:"message", title:"Угроза растёт", text:"Вирус распространяется по папкам. Срочно делайте резервную копию!"},
-    {t:10, type:"delete",  duration:12},
-    {t:23, type:"report",  duration:6},
-    {t:30, type:"screamer",duration:2},
-    {t:32, type:"bsod",    duration:6},
-    {t:38, type:"restore", duration:8},
-    {t:46, type:"freedom", text:"Контроль над компьютером освобождён!"}
+    {t:1,  type:"message", title:"Внимание системы", text:"Обнаружен неизвестный процесс. Идёт проверка данных..."},
+    {t:8,  type:"message", title:"Угроза растёт", text:"Вирус распространяется по папкам. Срочно делайте резервную копию!"},
+    {t:15, type:"delete",  duration:30},
+    {t:47, type:"report",  duration:10},
+    {t:59, type:"message", title:"Последнее предупреждение", text:"Провернуть отмену уже нельзя. Система захвачена полностью."},
+    {t:64, type:"screamer",duration:2.5},
+    {t:67, type:"bsod",    duration:10},
+    {t:79, type:"restore", duration:15},
+    {t:96, type:"freedom", text:"Проверка завершена — система в порядке"}
   ]
 };
 

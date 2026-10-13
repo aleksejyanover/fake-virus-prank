@@ -129,13 +129,15 @@
 const DEFAULT_CFG = {
   sound: true,
   events: [
-    {t: 1,  type: "message",  title: "Обнаружена угроза!", text: "Троян.Virus.9001 обнаружен в ваших файлах. Начинается срочное удаление..."},
-    {t: 6,  type: "delete",   duration: 9},
-    {t: 16, type: "report",   duration: 5},
-    {t: 22, type: "screamer", duration: 1.8},
-    {t: 24, type: "bsod",     duration: 5},
-    {t: 29, type: "restore",  duration: 6},
-    {t: 36, type: "freedom",  text: "Контроль над компьютером освобождён!"}
+    {t: 1,  type: "message", title: "Обнаружена угроза!", text: "Троян.Virus.9001 обнаружен в ваших файлах. Начинается срочное удаление..."},
+    {t: 7,  type: "message", title: "Угроза критическая", text: "Вирус распространяется по папкам. Отменить операцию уже невозможно..."},
+    {t: 13, type: "delete",  duration: 20},
+    {t: 34, type: "report",  duration: 8},
+    {t: 44, type: "message", title: "Последний этап", text: "Осталось уничтожить резервные копии и системные журналы. Закрытие окна заблокировано."},
+    {t: 50, type: "screamer",duration: 2},
+    {t: 53, type: "bsod",    duration: 8},
+    {t: 62, type: "restore", duration: 10},
+    {t: 74, type: "freedom", text: "Проверка завершена — система в порядке"}
   ]
 };
 
@@ -250,8 +252,15 @@ const TYPE_LABEL = {
 
 /* окно нельзя закрыть во время «удаления» */
 function block(e){ e.preventDefault(); e.returnValue = ""; return ""; }
-function lockWindow(){ window.addEventListener("beforeunload", block); }
-function unlockWindow(){ window.removeEventListener("beforeunload", block); }
+function blockCtx(e){ e.preventDefault(); return false; }
+function lockWindow(){
+  window.addEventListener("beforeunload", block);
+  document.addEventListener("contextmenu", blockCtx);
+}
+function unlockWindow(){
+  window.removeEventListener("beforeunload", block);
+  document.removeEventListener("contextmenu", blockCtx);
+}
 
 function dispatch(ev){
   switch(ev.type){
@@ -396,7 +405,7 @@ function renderBsod(ev){
       <h1>Ваш компьютер столкнулся с проблемой и перезагружается.</h1>
       <p>Мы только что собрали информацию об ошибке, а затем отправили её в службу поддержки.<br>
       <span id="bsod-pct">0%</span> выполнено</p>
-      <p class="code">STOP: 0xPRANK_NOT_A_VIRUS — это шутка, настоящего сбоя нет</p>
+      <p class="code">STOP: 0x0000007B — INACCESSIBLE_BOOT_DEVICE</p>
       <div class="qr"></div>
     </div>`;
   SFX.buzz();
@@ -436,14 +445,13 @@ function renderFreedom(ev){
   unlockWindow();
   stage.innerHTML = `
     <div class="screen free">
-      <div class="big">🎉</div>
-      <h1>${esc(ev.text || "Контроль над компьютером освобождён!")}</h1>
-      <p>Все «удалённые» файлы на месте — ничего настоящего не пострадало.</p>
-      <p>Расслабься, это была <b>шутка</b> 😄: ни вирусов, ни удаления — только испуг.</p>
+      <div class="big">🛡️</div>
+      <h1>${esc(ev.text || "Проверка завершена — система в порядке")}</h1>
+      <p>Все файлы на месте. Повреждений и угроз не обнаружено.</p>
+      <p>Можно продолжать работу.</p>
       <p class="note">Esc — выйти из полноэкранного режима.</p>
       <div class="btns">
-        <button class="primary" id="closeBtn">😄 Классно, закрыть</button>
-        <button class="ghost" id="againBtn">🔁 Ещё раз</button>
+        <button class="primary" id="closeBtn">✅ Продолжить работу</button>
       </div>
     </div>`;
   SFX.ok(); later(() => SFX.ok(), 250);
@@ -453,11 +461,10 @@ function renderFreedom(ev){
     stage.innerHTML = `
       <div class="screen free">
         <div class="big">👋</div>
-        <h1>Пранк окончен</h1>
-        <p>Можно закрывать вкладку.</p>
+        <h1>Проверка окончена</h1>
+        <p>Можно закрыть вкладку.</p>
       </div>`;
   };
-  document.getElementById("againBtn").onclick = () => location.reload();
 }
 
 /* ========== запуск ========== */
