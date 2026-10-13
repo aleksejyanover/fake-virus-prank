@@ -1,0 +1,27 @@
+#!/bin/bash
+# Пранк «Фейковый вирус» — лаунчер приложения для macOS.
+# Ничего настоящего не удаляет: только экраны и звуки пранка.
+# Esc или Cmd+Ctrl+F — выход из полноэкранного режима.
+
+DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
+HTML="$DIR/index.html"
+
+if [ ! -f "$HTML" ]; then
+  HTML="$HOME/fake-virus-prank/index.html"
+fi
+if [ ! -f "$HTML" ]; then
+  osascript -e 'display alert "Не найден файл index.html рядом с приложением." buttons {"OK"} default button "OK"'
+  exit 1
+fi
+
+URL="file://${HTML// /%20}"
+
+if [ -d "/Applications/Microsoft Edge.app" ]; then
+  open -a "Microsoft Edge" --args --kiosk --no-first-run "$URL"
+elif [ -d "/Applications/Google Chrome.app" ]; then
+  open -a "Google Chrome" --args --kiosk --no-first-run "$URL"
+else
+  open -a Safari "$HTML"
+  sleep 1
+  osascript -e 'tell application "System Events" to keystroke "f" using {control down, command down}' 2>/dev/null
+fi

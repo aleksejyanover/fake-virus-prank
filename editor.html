@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Редактор пранка — Фейковый вирус</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:#0e131b;color:#e8eef4;min-height:100vh;padding-bottom:60px}
+  header{background:linear-gradient(135deg,#162130,#0d141d);border-bottom:1px solid #223143;padding:34px 20px 28px;text-align:center}
+  header h1{font-size:26px;margin-bottom:8px}
+  header p{color:#9fb4c8;font-size:15px;max-width:760px;margin:0 auto;line-height:1.55}
+  main{max-width:960px;margin:0 auto;padding:22px 16px}
+  .panel{background:#151d28;border:1px solid #243447;border-radius:14px;padding:20px;margin-bottom:20px}
+  .panel h2{font-size:17px;margin-bottom:14px;color:#bcd}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#101722;border:1px solid #223144;border-radius:10px;padding:12px;margin-bottom:10px}
+  .row .num{font-size:12px;color:#7f93a8;width:100%}
+  .row input,.row select{font:inherit;background:#0b111a;color:#e8eef4;border:1px solid #2b3d53;border-radius:7px;padding:8px 10px;font-size:14px}
+  .row input.t{width:78px;text-align:center}
+  .row .fields{display:flex;gap:8px;flex:1;min-width:260px;flex-wrap:wrap}
+  .row .fields input{flex:1;min-width:150px}
+  .row .fields .dur{display:flex;align-items:center;gap:6px;color:#9fb4c8;font-size:13px}
+  .row .fields .dur input{width:76px;flex:none}
+  .acts{display:flex;gap:6px}
+  .acts button,.mini{background:#1d2b3c;color:#cfe0ee;border:1px solid #2e425a;border-radius:7px;width:34px;height:34px;font-size:15px;cursor:pointer}
+  .acts button:hover{background:#27405c}
+  .acts button.del:hover{background:#7a1f1f;border-color:#a33}
+  #add{width:100%;background:#1a2c40;color:#9fc6ff;border:1px dashed #33506f;border-radius:10px;padding:12px;font:inherit;cursor:pointer}
+  #add:hover{background:#21374f}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .btn{font:inherit;border:none;border-radius:9px;padding:12px 20px;font-weight:600;cursor:pointer}
+  .btn.primary{background:#2d7ff9;color:#fff}
+  .btn.green{background:#28d17c;color:#04170e}
+  .btn.ghost{background:#1d2b3c;color:#cfe0ee;border:1px solid #2e425a}
+  .btn:hover{filter:brightness(1.12)}
+  label.check{display:flex;gap:8px;align-items:center;color:#cfe0ee;font-size:14px;cursor:pointer}
+  #timeline{list-style:none}
+  #timeline li{padding:9px 12px;border-left:3px solid #2d7ff9;background:#101722;margin-bottom:7px;border-radius:0 8px 8px 0;font-size:14px}
+  #timeline li.scream{border-color:#e53935}
+  #timeline li.good{border-color:#28d17c}
+  #timeline li b{color:#7fb3ff}
+  #timeline li.scream b{color:#ff8a80}
+  #timeline li.good b{color:#7dffbe}
+  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#28d17c;color:#04170e;padding:12px 22px;border-radius:10px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:9}
+  #toast.show{opacity:1}
+  .help{font-size:13px;color:#7f93a8;line-height:1.6;margin-top:8px}
+  select.big{font:inherit;background:#0b111a;color:#e8eef4;border:1px solid #2b3d53;border-radius:7px;padding:11px 12px;font-size:14px}
+  code{background:#0b111a;padding:2px 6px;border-radius:5px;color:#8fd0ff;font-size:13px;word-break:break-all}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎛 Редактор пранка «Фейковый вирус»</h1>
+  <p>Настрой, что и когда будет происходить: сообщения, фейковое удаление файлов, скример, синий экран, восстановление и «освобождение компьютера». Ничего настоящего не удаляется — это безопасный пранк.</p>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>⚙️ Общие настройки</h2>
+    <div class="toolbar">
+      <label class="check"><input type="checkbox" id="sound" checked> 🔊 Звук</label>
+      <select class="big" id="preset">
+        <option value="">— Готовые сценарии —</option>
+        <option value="quick">⚡ Быстрый (~20 сек)</option>
+        <option value="classic">👾 Классический (~35 сек)</option>
+        <option value="long">⏳ Долгий (~45 сек)</option>
+      </select>
+      <button class="btn primary" id="run">▶ Запустить пранк</button>
+      <button class="btn ghost" id="copy">🔗 Скопировать ссылку</button>
+      <button class="btn green" id="dl">💾 Скачать файл пранка</button>
+    </div>
+    <p class="help">
+      ▶ <b>Запустить</b> — откроет пранк в новой вкладке (Esc — выйти из полноэкранного режима).<br>
+      🔗 <b>Ссылка</b> — в неё зашиты твои настройки: можно отправить другу, откроется с этим же сценарием.<br>
+      💾 <b>Скачать</b> — отдаст файл <code>index.html</code> уже с твоими настройками; работает двойным кликом даже без интернета.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>⏱ Действия по времени</h2>
+    <div id="rows"></div>
+    <button id="add">＋ Добавить действие</button>
+    <p class="help">Время — через сколько секунд после запуска произойдёт действие. Стрелки ↑↓ меняют порядок (сортировка идёт по времени), ✕ удаляет.</p>
+  </section>
+
+  <section class="panel">
+    <h2>📜 Хронология: что произойдёт</h2>
+    <ol id="timeline"></ol>
+  </section>
+</main>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+
+const TYPES = [
+  ["message",  "💬 Сообщение / окно"],
+  ["delete",   "🗑 Фейковое удаление файлов"],
+  ["report",   "📋 Отчёт об удалении"],
+  ["screamer", "😱 Скример (перепуг)"],
+  ["bsod",     "🟦 Синий экран"],
+  ["restore",  "♻️ Восстановление файлов"],
+  ["freedom",  "🎉 Освобождение ПК (финал)"]
+];
+
+const PRESETS = {
+  quick: [
+    {t:1,  type:"message", title:"Обнаружена угроза!", text:"Троян.Virus.9001 найден в ваших файлах!"},
+    {t:6,  type:"delete",  duration:7},
+    {t:13, type:"screamer",duration:1.6},
+    {t:15, type:"restore", duration:4},
+    {t:19, type:"freedom", text:"Контроль над компьютером освобождён!"}
+  ],
+  classic: [
+    {t:1,  type:"message", title:"Обнаружена угроза!", text:"Троян.Virus.9001 обнаружен в ваших файлах. Начинается срочное удаление..."},
+    {t:6,  type:"delete",  duration:9},
+    {t:16, type:"report",  duration:5},
+    {t:22, type:"screamer",duration:1.8},
+    {t:24, type:"bsod",    duration:5},
+    {t:29, type:"restore", duration:6},
+    {t:36, type:"freedom", text:"Контроль над компьютером освобождён!"}
+  ],
+  long: [
+    {t:1,  type:"message", title:"Внимание системы", text:"Обнаружен неизвестный процесс. Проверка данных..."},
+    {t:5,  type:"message", title:"Угроза растёт", text:"Вирус распространяется по папкам. Срочно делайте резервную копию!"},
+    {t:10, type:"delete",  duration:12},
+    {t:23, type:"report",  duration:6},
+    {t:30, type:"screamer",duration:2},
+    {t:32, type:"bsod",    duration:6},
+    {t:38, type:"restore", duration:8},
+    {t:46, type:"freedom", text:"Контроль над компьютером освобождён!"}
+  ]
+};
+
+function defaultDuration(type){
+  return type === "delete" ? 8 : type === "restore" ? 6 : type === "report" ? 5 : type === "bsod" ? 5 : 1.8;
+}
+function esc(s){
+  return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+}
+function b64url(obj){
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  let bin = ""; bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+
+let cfg = {sound: true, events: JSON.parse(JSON.stringify(PRESETS.classic))};
+
+const rowsEl = document.getElementById("rows");
+const tlEl = document.getElementById("timeline");
+const soundEl = document.getElementById("sound");
+
+function rowHTML(ev, i){
+  const typeOpts = TYPES.map(([v, l]) =>
+    `<option value="${v}" ${ev.type === v ? "selected" : ""}>${l}</option>`).join("");
+  let extra;
+  if(ev.type === "message"){
+    extra = `<input data-f="title" placeholder="Заголовок окна" value="${esc(ev.title || "")}">
+             <input data-f="text" placeholder="Текст сообщения" value="${esc(ev.text || "")}">`;
+  }else if(ev.type === "freedom"){
+    extra = `<input data-f="text" placeholder="Итоговая надпись" value="${esc(ev.text || "")}">`;
+  }else{
+    extra = `<label class="dur">длительность <input data-f="duration" type="number" min="0.5" step="0.5" value="${ev.duration || defaultDuration(ev.type)}"> с</label>`;
+  }
+  return `<div class="row" data-i="${i}">
+    <input class="t" data-f="t" type="number" min="0" step="0.5" value="${ev.t || 0}" title="Время (сек)"> с
+    <select data-f="type">${typeOpts}</select>
+    <div class="fields">${extra}</div>
+    <div class="acts">
+      <button data-a="up" title="Выше">↑</button>
+      <button data-a="down" title="Ниже">↓</button>
+      <button data-a="del" class="del" title="Удалить">✕</button>
+    </div>
+  </div>`;
+}
+
+function renderRows(){
+  rowsEl.innerHTML = cfg.events.map(rowHTML).join("");
+  renderTimeline();
+}
+
+function renderTimeline(){
+  const sorted = cfg.events.slice().sort((a, b) => (a.t || 0) - (b.t || 0));
+  const label = Object.fromEntries(TYPES);
+  tlEl.innerHTML = sorted.map(ev => {
+    const cls = ev.type === "screamer" ? "scream" : ev.type === "freedom" || ev.type === "restore" ? "good" : "";
+    let what = label[ev.type] || ev.type;
+    if(ev.type === "message") what += ` — «${esc(ev.title || ev.text || "")}»`;
+    if(ev.type === "freedom") what += ` — «${esc(ev.text || "")}»`;
+    return `<li class="${cls}"><b>${ev.t || 0} с</b> — ${what}</li>`;
+  }).join("");
+}
+
+rowsEl.addEventListener("input", e => {
+  const row = e.target.closest(".row");
+  if(!row) return;
+  const i = +row.dataset.i, f = e.target.dataset.f;
+  if(!f) return;
+  let v = e.target.value;
+  if(f === "t" || f === "duration") v = parseFloat(v) || 0;
+  cfg.events[i][f] = v;
+  if(f === "type"){
+    cfg.events[i].duration = defaultDuration(v);
+    renderRows();
+  }
+  renderTimeline();
+});
+
+rowsEl.addEventListener("click", e => {
+  const btn = e.target.closest("button[data-a]");
+  if(!btn) return;
+  const row = btn.closest(".row");
+  const i = +row.dataset.i, a = btn.dataset.a;
+  if(a === "del") cfg.events.splice(i, 1);
+  if(a === "up" && i > 0) [cfg.events[i - 1], cfg.events[i]] = [cfg.events[i], cfg.events[i - 1]];
+  if(a === "down" && i < cfg.events.length - 1) [cfg.events[i + 1], cfg.events[i]] = [cfg.events[i], cfg.events[i + 1]];
+  renderRows();
+});
+
+document.getElementById("add").onclick = () => {
+  const last = cfg.events[cfg.events.length - 1];
+  cfg.events.push({t: last ? (last.t || 0) + 5 : 0, type: "message", title: "Новое действие", text: "Текст сообщения"});
+  renderRows();
+};
+
+document.getElementById("preset").onchange = e => {
+  const p = PRESETS[e.target.value];
+  if(!p) return;
+  cfg.events = JSON.parse(JSON.stringify(p));
+  renderRows();
+  toast("Сценарий загружен ✅");
+};
+
+soundEl.onchange = () => { cfg.sound = soundEl.checked; };
+
+function buildURL(){
+  cfg.sound = soundEl.checked;
+  const url = new URL("index.html", location.href);
+  url.hash = "cfg=" + b64url(cfg);
+  return url.toString();
+}
+
+document.getElementById("run").onclick = () => {
+  window.open(buildURL(), "_blank");
+};
+
+document.getElementById("copy").onclick = async () => {
+  const url = buildURL();
+  try{
+    await navigator.clipboard.writeText(url);
+    toast("Ссылка скопирована 🔗");
+  }catch(e){
+    prompt("Скопируйте ссылку:", url);
+  }
+};
+
+document.getElementById("dl").onclick = async () => {
+  try{
+    const res = await fetch("index.html");
+    if(!res.ok) throw new Error("http " + res.status);
+    let text = await res.text();
+    cfg.sound = soundEl.checked;
+    const injected = "const DEFAULT_CFG = " + JSON.stringify(cfg, null, 2) + ";";
+    text = text.replace(/const DEFAULT_CFG = [\s\S]*?;\n/, injected + "\n");
+    if(text.indexOf(injected) === -1) throw new Error("inject failed");
+    const blob = new Blob([text], {type: "text/html"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "пранк-фейковый-вирус.html";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast("Файл скачан 💾 (открой двойным кликом)");
+  }catch(err){
+    toast("Не вышло: открой сайт по http-адресу GitHub Pages, либо используй «Скопировать ссылку»");
+  }
+};
+
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 3200);
+}
+
+soundEl.checked = cfg.sound !== false;
+renderRows();
+</script>
+</body>
+</html>
